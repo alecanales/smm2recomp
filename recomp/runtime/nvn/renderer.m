@@ -1587,6 +1587,9 @@ static id<MTLSamplerState> sampler_for(NvnSamplerDesc *d) {
     static float lodmin = -1;  // LARECOMP_LOD_MIN=<n>: skip the n sharpest mips everywhere (aliasing experiments)
     if (lodmin < 0) lodmin = getenv("LARECOMP_LOD_MIN") ? (float)atof(getenv("LARECOMP_LOD_MIN")) : 0;
     if (lodmin > 0 && mf > 1) sd.lodMinClamp = fmaxf(sd.lodMinClamp, lodmin);
+    static float lodmax = -2;  // LARECOMP_LOD_MAX=<n>: no mip past n anywhere (test: are smaller mips at fault?)
+    if (lodmax < -1) lodmax = getenv("LARECOMP_LOD_MAX") ? (float)atof(getenv("LARECOMP_LOD_MAX")) : -1;
+    if (lodmax >= 0) sd.lodMaxClamp = fminf(sd.lodMaxClamp, lodmax), sd.lodMinClamp = fminf(sd.lodMinClamp, lodmax);
     static int stest = -1;  // LARECOMP_SAMPLER_TEST: full mip range + 16x aniso on mipmapped samplers (moire test)
     if (stest < 0) stest = getenv("LARECOMP_SAMPLER_TEST") != NULL;
     if (stest && mf > 1) { sd.lodMinClamp = 0; sd.lodMaxClamp = FLT_MAX; sd.maxAnisotropy = 16; }

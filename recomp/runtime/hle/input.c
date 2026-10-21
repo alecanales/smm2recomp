@@ -802,7 +802,7 @@ HLE_FUNC("_ZN2nn3hid21ShowControllerSupportEPNS0_27ControllerSupportResultInfoER
         *(int8_t *)(uintptr_t)out = (int8_t)n;
         *(uint32_t *)(uintptr_t)(out + 4) = 0;  // Npad No. 1
     }
-    LOG("[hid] controller support (players %d..%d): %d player(s)%s\n", min, max, n,
-        n < min ? " - fewer than the game asks for" : "");
+    LOG("[hid] controller support (players %d..%d): %d player(s)%s (lr %llx)\n", min, max, n,
+        n < min ? " - fewer than the game asks for" : "", (unsigned long long)c->x[30]);
     c->x[0] = 0;
 }
