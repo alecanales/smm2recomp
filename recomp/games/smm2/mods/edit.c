@@ -598,7 +598,23 @@ static void info_window(Cpu *c) {
     if (win && edit_on() && slot >= 0 && slot < 0xb4) make_button(c, win, slot >= 0x78);
 }
 
+// (test) RECOMP_TRACE_SCENE_REQ=1: every scene request's reason (REQ_BEGIN) and caller, and its course number
+static void trace_req_begin(Cpu *c) {
+    LOG("[mod] scene request: reason %u, params %llx (lr %llx)\n", (unsigned)c->x[0], (unsigned long long)c->x[1],
+        (unsigned long long)c->x[30]);
+    guest_call_orig(c, REQ_BEGIN);
+}
+static void trace_req_course(Cpu *c) {
+    LOG("[mod] scene request: reason %u, course %d (lr %llx)\n", (unsigned)c->x[0], (int32_t)c->x[1],
+        (unsigned long long)c->x[30]);
+    guest_call_orig(c, REQ_COURSE);
+}
+
 __attribute__((constructor)) static void edit_register(void) {
+    if (getenv("RECOMP_TRACE_SCENE_REQ")) {
+        hle_override(REQ_BEGIN, trace_req_begin, "mod: scene request trace (begin)");
+        hle_override(REQ_COURSE, trace_req_course, "mod: scene request trace (course)");
+    }
     hle_override(INFO_APPEAR_EXEC, info_window, "mod: Coursebot info window Appear (edit)");
     hle_override(INFO_DISP_EXEC, info_window, "mod: Coursebot info window Disp (edit)");
     hle_override(MAIN_ADDR(0x14e0e70), relation_get, "mod: relation object (thumbnail) download");
